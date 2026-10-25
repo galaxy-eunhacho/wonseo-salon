@@ -750,9 +750,10 @@
             
             document.getElementById('toc-content').innerHTML = currentBook.toc.map((section, secIdx) => {
                 const isOpen = openSectionIndices.has(secIdx);
-                const activeCount = section.chapters.filter(c => c.hasData).length;
-                const badgeText = activeCount > 0 ? `${activeCount} Chapters` : 'Preparing';
-                const isBadgeDisabled = activeCount === 0;
+                // Epigraph를 제외한 순수 챕터 개수만 카운트 (Book I: 12, Book II: 14)
+                const chapterCount = section.chapters.filter(c => c.hasData && !c.title.toLowerCase().includes('epigraph')).length;
+                const badgeText = chapterCount > 0 ? `${chapterCount} Chapters` : 'Preparing';
+                const isBadgeDisabled = chapterCount === 0;
 
                 return `
                 <div class="toc-section reveal ${isOpen ? 'is-open' : ''}" id="toc-sec-${secIdx}" style="transition-delay: ${secIdx * 0.05}s">
@@ -868,6 +869,18 @@
             }, 10);
         }
 
+        // 네비게이션 링크 텍스트 서식화: Book II 이후의 Epigraph는 'Book II. Epigraph' 형식으로 표기
+        function getNavChapterTitle(ch) {
+            if (!ch) return '';
+            if (ch.title.toLowerCase().includes('epigraph')) {
+                if (ch.section && ch.section.toUpperCase() !== 'BOOK I') {
+                    const formattedSec = ch.section.replace(/BOOK/i, 'Book');
+                    return `${formattedSec}. Epigraph`;
+                }
+            }
+            return ch.title;
+        }
+
         // 상단에 위치한 작고 깔끔한 네비게이션 링크 생성
         function renderChapterNav() {
             const navBar = document.getElementById('chapter-nav-bar');
@@ -876,7 +889,12 @@
                 return;
             }
 
-            const allChs = currentBook.toc.flatMap(s => s.chapters).filter(c => c.hasData);
+            const allChs = currentBook.toc.flatMap(s => 
+                s.chapters.filter(c => c.hasData).map(c => ({
+                    ...c,
+                    section: s.section
+                }))
+            );
             const idx = allChs.findIndex(c => c.id === currentChapterId);
             
             if(idx === -1) {
@@ -889,8 +907,8 @@
             
             navBar.style.display = 'flex';
             navBar.innerHTML = `
-                ${prevCh ? `<button class="ch-nav-btn" onclick="goToChapter('${prevCh.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg> Prev: ${prevCh.title}</button>` : `<div></div>`}
-                ${nextCh ? `<button class="ch-nav-btn" onclick="goToChapter('${nextCh.id}')">Next: ${nextCh.title} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>` : `<div></div>`}
+                ${prevCh ? `<button class="ch-nav-btn" onclick="goToChapter('${prevCh.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg> Prev: ${getNavChapterTitle(prevCh)}</button>` : `<div></div>`}
+                ${nextCh ? `<button class="ch-nav-btn" onclick="goToChapter('${nextCh.id}')">Next: ${getNavChapterTitle(nextCh)} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>` : `<div></div>`}
             `;
         }
 
