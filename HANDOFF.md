@@ -1,64 +1,103 @@
 # 📋 원서살롱 Voca Notes App — 세션 핸드오프 (Handoff) 문서
 
-- **작성 일시**: 2026-10-13 21:21
+- **최종 업데이트**: 2026-10-25 17:15
 - **프로젝트**: 원서살롱 프라이빗 어휘 노트 & 플래시카드 웹앱 (`WONSEO SALON VOCA NOTES`)
-- **작업 파일**: `WONSEO SALON_VocaNotesApp/index.html`
-- **현재 배포 URL**: https://wonseo-salon.netlify.app/
+- **라이브 서비스 URL**: https://wonseo-salon.netlify.app/
+- **GitHub 저장소**: https://github.com/galaxy-eunhacho/wonseo-salon (`main` 브랜치)
 - **Supabase 프로젝트 ID**: `wvavbcozkqmrrflgcvlw`
+- **Netlify Site ID**: `aaa1ed83-f17d-4b23-9f63-16505e7ac58c`
+- **핵심 파일**: `index.html` 및 `WONSEO SALON_VocaNotesApp/index.html` (상시 동기화)
 
 ---
 
-## 1. 📌 오늘 완료된 작업 (Completed Today)
+## 1. 📌 최근 완료된 작업 요약 (2026-10-25)
 
-### 🔊 단어 읽어주는 기능 (TTS - Text to Speech) 구현 완료
-- **적용 기술**: 브라우저 내장 Web Speech API (`window.speechSynthesis`)
-- **주요 구현 상세**:
-  1. **표 (List 모드)**:
-     - 어휘(`Expression`) 옆에 원형 스피커 아이콘 버튼(`.table-tts-btn`) 배치.
-     - 클릭 시 표 행 클릭(카드 모드로 전환)이 발생하지 않도록 `event.stopPropagation()` 완벽 처리.
-  2. **플래시카드 (Card 모드)**:
-     - 단어 바로 아래에 터치하기 편한 타원형 `[🔊 Listen]` 버튼(`.card-tts-btn`) 추가.
-  3. **자연스러운 고음질 음성 매칭**:
-     - `Google US English`, `Samantha`, `Ava`, `Natural` 등 미국 영어(`en-US`) 최상위 음성을 자동 감지하여 우선 재생.
-     - 발음 재생 속도를 `0.92`로 설정하여 명확하고 자연스럽게 발음.
-  4. **시각적 애니메이션 피드백**:
-     - 음성 재생 중 버튼 색상이 테라코타 포인트 컬러로 전환되며 은은한 음파 파동(`soundWave`) 애니메이션 실행.
-  5. **모바일/연속 클릭 방어 코드**:
-     - `speechSynthesis.cancel()` 선처리로 연속 탭 시 오디오 겹침 및 끊김 방지.
+### 📚 1) American Hagwon — BOOK II 어휘 데이터 추가 (총 595개 어휘)
+- **어휘 범위**: ID `806` ~ `1400` (총 595개 행)
+- **챕터 구성 (총 15개)**:
+  - `Epigraph` (`b2q1`): 3개
+  - `Ch 1. Letters` (`b2c1`): 30개
+  - `Ch 2. Suneung` (`b2c2`): 73개
+  - `Ch 3. Transit` (`b2c3`): 45개
+  - `Ch 4. SUDS` (`b2c4`): 74개
+  - `Ch 5. Financial Crisis` (`b2c5`): 58개
+  - `Ch 6. Economy` (`b2c6`): 30개
+  - `Ch 7. Property` (`b2c7`): 50개
+  - `Ch 8. Solace` (`b2c8`): 27개
+  - `Ch 9. Self-Determination` (`b2c9`): 41개
+  - `Ch 10. Orange County` (`b2c10`): 23개
+  - `Ch 11. Mall` (`b2c11`): 30개
+  - `Ch 12. Lost and Found` (`b2c12`): 32개
+  - `Ch 13. Rescue` (`b2c13`): 27개
+  - `Ch 14. Debtors` (`b2c14`): 52개
+- **DB 및 파일 반영**:
+  - Supabase `voca_notes` 테이블에 일괄 적재 완료.
+  - 통합 CSV [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv)에 병합 (Book I 805행 + Book II 595행 = 총 1,400행).
+  - 원본 [VN-american-hagwon-Book II.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon-Book%20II.csv) 보관.
 
----
+### 📄 2) 표(Table) 페이지 번호 100자리 줄 바꿈 방지
+- **개선 상세**: `.col-page` 셀 스타일을 `width: 80px; min-width: 78px; white-space: nowrap !important;`로 설정하여 `p. 107`, `p. 125`, `p. 230` 등 세 자리 페이지 번호가 모바일/PC 상관없이 절대 두 줄로 분리되지 않도록 처리.
 
-## 2. 🚀 다음 세션에서 바로 진행할 작업 (Next Steps)
+### 📖 3) 목차(TOC) 아코디언 접기/펼치기 UI 구현
+- **초기 상태**: 책(American Hagwon)에 처음 들어갔을 때 모든 챕터가 펼쳐지지 않고, `BOOK I`, `BOOK II`, `BOOK III`...이 깔끔하게 접힌 카드 형태로 노출.
+- **클릭 동작**: 헤더 클릭 시 셰브론(`▼` ➔ `▲`) 회전 애니메이션과 함께 하위 챕터 메뉴가 부드럽게 펼쳐짐/접힘 (`toggleTocSection`).
+- **스마트 뒤로가기**: 단어장/플래시카드를 보다가 상단 뒤로가기(`‹`)를 누르면 직전에 읽던 Book 섹션이 자동으로 열린 상태로 복원되어 탐색 연속성 보장.
 
-사용자께서 **"API 토큰을 전달하여 AI가 100% 자동 처리"** 방식을 선택하셨으므로, 다음 세션 시작 시 **3가지 토큰**을 전달해 주시면 AI가 즉시 자동 연동 작업을 수행합니다.
-
-### 🔑 다음 세션 시작 시 준비할 3가지 토큰
-1. **Supabase `service_role` (Secret) 키**:
-   - [Supabase API 설정](https://supabase.com/dashboard/project/wvavbcozkqmrrflgcvlw/settings/api) ➔ **Project API keys** ➔ `service_role` 복사
-2. **GitHub Personal Access Token**:
-   - [GitHub 토큰 생성](https://github.com/settings/tokens/new) ➔ Note: `voca-app`, Scope: **`repo`** 체크 후 발급
-3. **Netlify Personal Access Token**:
-   - [Netlify 토큰 설정](https://app.netlify.com/user/applications#personal-access-tokens) ➔ **New access token** 클릭 후 발급
-
----
-
-## 3. 🤖 AI가 다음 세션에서 자동 실행할 작업 파이프라인
-
-토큰이 전달되면 다음 순서로 일괄 자동 실행됩니다:
-
-1. **GitHub**: 원격 저장소 생성 및 현재 프로젝트 파일 일괄 커밋 & 푸시
-2. **Supabase DB 보안 (RLS & RPC)**:
-   - `verify_member_login(p_name, p_password)` PostgreSQL 보안 함수 원격 생성
-   - `members` 테이블 RLS 활성화 (외부 회원정보 탈취 원천 차단)
-   - `voca_notes` 테이블 RLS 활성화 (공개 읽기 허용, 비인가 쓰기 차단)
-   - `index.html`의 로그인 코드를 보안 RPC 호출 방식으로 변경
-3. **Netlify 자동 배포 연결**:
-   - Netlify 사이트에 GitHub 저장소 연결 및 자동 빌드/배포 활성화
+### 🏷️ 4) 챕터 수 배지 및 네비게이션 표기 규칙 (지속 규칙)
+- **규칙 1 (배지 카운트)**: `Epigraph`는 번호가 부여된 챕터가 아니므로 챕터 수 배지에서 제외.
+  - Book I: `12 Chapters` (Ch 1~12)
+  - Book II: `14 Chapters` (Ch 1~14)
+- **규칙 2 (네비게이션 링크 표기)**: Prev / Next 버튼에서 Book II 이후의 Epigraph는 소설 맨 앞으로 돌아가는 오해를 방지하기 위해 반드시 `Book II. Epigraph`, `Book III. Epigraph` 등으로 표기 (`getNavChapterTitle`).
 
 ---
 
-## 4. 📂 파일 현황 요약
-- `WONSEO SALON_VocaNotesApp/index.html`: 단어 발음 듣기(TTS) 기능 적용 완료
-- `VN-american-hagwon.csv`: American Hagwon 북1 어휘 데이터 (800행)
-- `VN-american-hagwon - members.csv`: 멤버 초기 데이터 (8명)
-- `HANDOFF.md`: 본 인수인계 문서
+## 2. ⚙️ 핵심 개발 및 운영 규칙 (AI 항시 준수 원칙)
+
+> [!IMPORTANT]
+> **핸드오프 문서 자동 갱신 원칙**:
+> 사용자가 별도로 요청하지 않더라도 작업이 완료되거나 주요 변경이 발생할 때마다 본 `HANDOFF.md` 문서를 항상 최신 상태로 업데이트할 것.
+
+1. **파일 이중 동기화**:
+   - `index.html`과 `WONSEO SALON_VocaNotesApp/index.html`은 항상 100% 동일한 내용으로 유지해야 합니다.
+2. **배포 파이프라인**:
+   - 코드나 데이터 수정 후 반드시 `powershell -ExecutionPolicy Bypass -File push_to_github.ps1`을 실행하여 GitHub에 반영 ➔ Netlify 자동 배포 트리거.
+   - 배포 후 `check_deploy_status.ps1` 및 `verify_live.ps1`로 라이브 반영 여부 확인.
+3. **새로운 북/권(Book) 데이터 추가 시 체크리스트**:
+   - [ ] 엑셀/CSV 데이터의 컬럼 매핑: `id`, `book_id`, `section`, `ch_id`, `chapter`, `page`, `expression`, `meaning`, `context`
+   - [ ] Supabase `voca_notes`에 `service_role` 키로 일괄 upsert (`upload_book*.ps1` 패턴)
+   - [ ] `VN-american-hagwon.csv`에 추가 병합
+   - [ ] `index.html` 내 `booksData`의 목차(`toc`) 챕터 배열 갱신 및 `hasData: true` 설정
+   - [ ] `push_to_github.ps1` 내 `$filesToUpload` 목록에 신규 CSV 포함 여부 확인 후 배포
+
+---
+
+## 3. 📂 현재 프로젝트 파일 구조
+
+```
+Voca Notes App/
+├── index.html                           # 메인 웹앱 소스 (루트)
+├── WONSEO SALON_VocaNotesApp/
+│   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
+├── AmericanHagwon.jpg                   # 도서 표지 이미지
+├── VN-american-hagwon.csv               # 북1 + 북2 통합 어휘 DB (1,400행)
+├── VN-american-hagwon-Book II.csv       # 북2 원본 어휘 데이터 (595행)
+├── VN-american-hagwon - members.csv     # 회원 목록 및 로그인 비밀번호 (9명)
+├── netlify.toml                         # Netlify 배포 및 보안 헤더 설정
+├── supabase_security_setup.sql          # Supabase RLS 보안 및 RPC 로그인 함수 SQL
+├── push_to_github.ps1                   # GitHub API 직접 커밋 & 푸시 스크립트
+├── check_deploy_status.ps1              # Netlify 배포 상태 실시간 확인 스크립트
+├── verify_live.ps1                      # 라이브 사이트 무결성 검증 스크립트
+└── HANDOFF.md                           # 본 인수인계 문서
+```
+
+---
+
+## 4. 🚀 다음 예정 작업 (Backlog)
+
+1. **BOOK III 어휘 데이터 준비 시 연동**:
+   - 기간: `October 1999–January 2001`
+   - CSV 수령 ➔ Supabase 적재 ➔ 목차 활성화
+2. **BOOK IV, BOOK V 순차 확장**:
+   - 전체 American Hagwon 시리즈 완성
+3. **추가 도서 (Pachinko 등) 등록**:
+   - 필요 시 목차 및 어휘 데이터베이스 추가 구성
