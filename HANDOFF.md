@@ -1,6 +1,6 @@
 # 📋 원서살롱 Voca Notes App — 세션 핸드오프 (Handoff) 문서
 
-- **최종 업데이트**: 2026-10-25 17:15
+- **최종 업데이트**: 2026-11-02 10:15
 - **프로젝트**: 원서살롱 프라이빗 어휘 노트 & 플래시카드 웹앱 (`WONSEO SALON VOCA NOTES`)
 - **라이브 서비스 URL**: https://wonseo-salon.netlify.app/
 - **GitHub 저장소**: https://github.com/galaxy-eunhacho/wonseo-salon (`main` 브랜치)
@@ -10,9 +10,20 @@
 
 ---
 
-## 1. 📌 최근 완료된 작업 요약 (2026-10-25)
+## 1. 📌 최근 완료된 작업 요약 (2026-11-02)
 
-### 📚 1) American Hagwon — BOOK II 어휘 데이터 추가 (총 595개 어휘)
+### 🐛 1) Supabase 기본 쿼리 제한(1,000행) 초과 이슈 해결 (Book II Ch. 5~14 노출 정상화)
+- **현상 및 원인 분석**:
+  - Book II 추가 후 전체 어휘가 1,400개로 증가했으나, Supabase PostgREST의 단일 쿼리 최대 반환 제한(`max-rows: 1000`)으로 인해 ID 1000(Book II Ch 4 `prop`~`next to nothing` 부근)까지만 수신됨.
+  - 이로 인해 ID 1031부터 시작하는 Book II Ch 5 (`b2c5`, Financial Crisis, 58개)부터 Ch 14까지의 모든 데이터가 클라이언트에 도달하지 못해 빈 화면(Empty State)으로 표시되고 챕터 헤더 갱신이 멈추는 오류 발생 (Ch 4의 74개 단어 중 30개도 누락 상태였음).
+- **해결 조치**:
+  1. `fetchAllBookData` 함수를 구현하여 Supabase `.range(from, from + pageSize - 1)`를 이용한 1,000개 단위 자동 페이징(Pagination) 일괄 로딩 적용 (1,400행 전수 로딩 완료).
+  2. 세션 인메모리 캐싱(`currentLoadedBookId`, `fetchBookDataPromise`)을 적용하여 동일 도서 내 챕터 이동 시 불필요한 반복 쿼리 제거 및 0.01초 즉각 전환 반응성 확보.
+  3. 목차(`openToc`) 진입 시 백그라운드에서 사전 프리로드(Preload)를 실행하여 챕터 진입 및 전체 검색 시 즉각적인 반응성 제공.
+  4. 챕터 이동 시 어휘 데이터가 로드되기 전에도 목차 메타데이터를 기반으로 챕터/섹션 제목이 즉각 정상 표시되도록 보완.
+  5. 검색 시 아직 데이터가 로드되지 않은 상태에서 검색창 입력 시 자동으로 데이터를 로드한 후 검색 결과가 나타나도록 안전장치 강화.
+
+### 📚 2) American Hagwon — BOOK II 어휘 데이터 추가 (총 595개 어휘)
 - **어휘 범위**: ID `806` ~ `1400` (총 595개 행)
 - **챕터 구성 (총 15개)**:
   - `Epigraph` (`b2q1`): 3개
@@ -35,15 +46,15 @@
   - 통합 CSV [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv)에 병합 (Book I 805행 + Book II 595행 = 총 1,400행).
   - 원본 [VN-american-hagwon-Book II.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon-Book%20II.csv) 보관.
 
-### 📄 2) 표(Table) 페이지 번호 100자리 줄 바꿈 방지
+### 📄 3) 표(Table) 페이지 번호 100자리 줄 바꿈 방지
 - **개선 상세**: `.col-page` 셀 스타일을 `width: 80px; min-width: 78px; white-space: nowrap !important;`로 설정하여 `p. 107`, `p. 125`, `p. 230` 등 세 자리 페이지 번호가 모바일/PC 상관없이 절대 두 줄로 분리되지 않도록 처리.
 
-### 📖 3) 목차(TOC) 아코디언 접기/펼치기 UI 구현
+### 📖 4) 목차(TOC) 아코디언 접기/펼치기 UI 구현
 - **초기 상태**: 책(American Hagwon)에 처음 들어갔을 때 모든 챕터가 펼쳐지지 않고, `BOOK I`, `BOOK II`, `BOOK III`...이 깔끔하게 접힌 카드 형태로 노출.
 - **클릭 동작**: 헤더 클릭 시 셰브론(`▼` ➔ `▲`) 회전 애니메이션과 함께 하위 챕터 메뉴가 부드럽게 펼쳐짐/접힘 (`toggleTocSection`).
 - **스마트 뒤로가기**: 단어장/플래시카드를 보다가 상단 뒤로가기(`‹`)를 누르면 직전에 읽던 Book 섹션이 자동으로 열린 상태로 복원되어 탐색 연속성 보장.
 
-### 🏷️ 4) 챕터 수 배지 및 네비게이션 표기 규칙 (지속 규칙)
+### 🏷️ 5) 챕터 수 배지 및 네비게이션 표기 규칙 (지속 규칙)
 - **규칙 1 (배지 카운트)**: `Epigraph`는 번호가 부여된 챕터가 아니므로 챕터 수 배지에서 제외.
   - Book I: `12 Chapters` (Ch 1~12)
   - Book II: `14 Chapters` (Ch 1~14)
