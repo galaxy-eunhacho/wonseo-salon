@@ -526,6 +526,8 @@
         let currentViewMode = 'list';
         let currentChapterId = null; 
         let openSectionIndices = new Set(); 
+        let currentLoadedBookId = null;
+        let fetchBookDataPromise = null;
 
         async function handleLogin() {
             const name = document.getElementById('login-name').value.trim();
@@ -601,6 +603,8 @@
         function handleLogout() {
             localStorage.removeItem('vocaUser');
             localStorage.removeItem('vocaState');
+            currentLoadedBookId = null;
+            allBookDataFromServer = [];
             showLoginView();
         }
 
@@ -786,6 +790,11 @@
                 `;
             }).join('');
             setTimeout(applyReveal, 50);
+
+            // 백그라운드에서 전체 어휘 데이터 사전 로딩 (이미 캐시된 경우 스킵)
+            if (currentLoadedBookId !== bookId || allBookDataFromServer.length === 0) {
+                fetchAllBookData(bookId).catch(err => console.warn('Background voca preload warning:', err));
+            }
         }
 
         function toggleTocSection(secIdx) {
@@ -797,6 +806,51 @@
             } else {
                 openSectionIndices.delete(secIdx);
             }
+        }
+
+        async function fetchAllBookData(bookId) {
+            if (currentLoadedBookId === bookId && allBookDataFromServer && allBookDataFromServer.length > 0) {
+                return allBookDataFromServer;
+            }
+            if (fetchBookDataPromise) {
+                return fetchBookDataPromise;
+            }
+            fetchBookDataPromise = (async () => {
+                let allData = [];
+                let from = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const { data, error } = await supabaseClient
+                        .from('voca_notes')
+                        .select('*')
+                        .eq('book_id', bookId)
+                        .order('id', { ascending: true })
+                        .range(from, from + pageSize - 1);
+
+                    if (error) throw error;
+
+                    if (data && data.length > 0) {
+                        allData = allData.concat(data);
+                        if (data.length < pageSize) {
+                            hasMore = false;
+                        } else {
+                            from += pageSize;
+                        }
+                    } else {
+                        hasMore = false;
+                    }
+                }
+
+                allBookDataFromServer = allData;
+                currentLoadedBookId = bookId;
+                return allBookDataFromServer;
+            })().finally(() => {
+                fetchBookDataPromise = null;
+            });
+
+            return fetchBookDataPromise;
         }
 
         async function openChapter(bookId, chapterId, isRestoring = false) {
@@ -813,38 +867,50 @@
             document.getElementById('list-mode').style.display = 'none';
             document.getElementById('card-mode').style.display = 'none';
             document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('loading-spinner').style.display = 'flex';
-            
-            try {
-                const { data, error } = await supabaseClient
-                    .from('voca_notes')
-                    .select('*')
-                    .eq('book_id', bookId)
-                    .order('id', { ascending: true }); 
-                
-                if (error) throw error;
-                allBookDataFromServer = data || [];
-                
-            } catch (error) {
-                console.error('Supabase Error:', error);
-                alert("An error occurred while loading vocabulary data.");
+
+            // 목차 메타데이터에서 챕터 및 섹션 정보 미리 세팅 (로딩 중 또는 데이터 공백 시에도 제목 정상 표시)
+            let secName = '';
+            let chTitle = '';
+            if (currentBook && currentBook.toc) {
+                for (const sec of currentBook.toc) {
+                    const found = sec.chapters ? sec.chapters.find(c => c.id === chapterId) : null;
+                    if (found) {
+                        secName = sec.section;
+                        chTitle = found.title;
+                        break;
+                    }
+                }
+            }
+            document.getElementById('chapter-subtitle').innerText = secName;
+            document.getElementById('chapter-title').innerText = chTitle;
+
+            // 해당 도서 데이터가 아직 메모리에 없거나 불완전한 경우에만 로딩 스피너 및 Supabase 페이징 조회 수행
+            if (currentLoadedBookId !== bookId || allBookDataFromServer.length === 0) {
+                document.getElementById('loading-spinner').style.display = 'flex';
+                try {
+                    await fetchAllBookData(bookId);
+                } catch (error) {
+                    console.error('Supabase Error:', error);
+                    alert("An error occurred while loading vocabulary data.");
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    return;
+                }
                 document.getElementById('loading-spinner').style.display = 'none';
-                return;
+            } else {
+                document.getElementById('loading-spinner').style.display = 'none';
             }
 
-            document.getElementById('loading-spinner').style.display = 'none';
-
             currentCardScopeData = allBookDataFromServer; 
-            workingData = allBookDataFromServer.filter(w => w.ch_id.trim().toLowerCase() === chapterId.toLowerCase());
+            workingData = allBookDataFromServer.filter(w => w.ch_id && w.ch_id.trim().toLowerCase() === chapterId.toLowerCase());
             
             if (!isRestoring) {
-                let startIndex = allBookDataFromServer.findIndex(w => w.ch_id.trim().toLowerCase() === chapterId.toLowerCase());
+                let startIndex = allBookDataFromServer.findIndex(w => w.ch_id && w.ch_id.trim().toLowerCase() === chapterId.toLowerCase());
                 cardIndex = startIndex !== -1 ? startIndex : 0;
             }
 
             if (workingData.length > 0) {
-                document.getElementById('chapter-subtitle').innerText = workingData[0].section;
-                document.getElementById('chapter-title').innerText = workingData[0].chapter;
+                document.getElementById('chapter-subtitle').innerText = workingData[0].section || secName;
+                document.getElementById('chapter-title').innerText = workingData[0].chapter || chTitle;
             }
 
             currentChapterId = chapterId; 
@@ -960,6 +1026,13 @@
                     const chapterHeaderEl = document.querySelector('.chapter-header');
                     if (chapterHeaderEl) chapterHeaderEl.classList.remove('hide-in-card');
                 }
+
+                if (allBookDataFromServer.length === 0 && currentBook) {
+                    fetchAllBookData(currentBook.id).then(() => {
+                        handleSearch();
+                    });
+                    return;
+                }
             }
 
             if(keyword === '') {
@@ -967,7 +1040,7 @@
                 const saved = JSON.parse(localStorage.getItem('vocaState'));
                 if (saved && saved.chapterId) {
                     currentChapterId = saved.chapterId;
-                    workingData = allBookDataFromServer.filter(w => w.ch_id.trim().toLowerCase() === saved.chapterId.toLowerCase());
+                    workingData = allBookDataFromServer.filter(w => w.ch_id && w.ch_id.trim().toLowerCase() === saved.chapterId.toLowerCase());
                     currentCardScopeData = allBookDataFromServer;
                     
                     if(workingData.length > 0) {
@@ -987,9 +1060,9 @@
                 globalSearchMode = true;
                 renderChapterNav(); // 검색 중엔 링크 숨김
                 const searchResults = allBookDataFromServer.filter(item => 
-                    item.expression.toLowerCase().includes(keyword) || 
-                    item.meaning.includes(keyword) || 
-                    item.page.includes(keyword)
+                    (item.expression && item.expression.toLowerCase().includes(keyword)) || 
+                    (item.meaning && item.meaning.includes(keyword)) || 
+                    (item.page && item.page.includes(keyword))
                 );
                 
                 workingData = searchResults;
@@ -1073,7 +1146,7 @@
                 currentCardScopeData = allBookDataFromServer;
                 currentChapterId = clickedWord.ch_id;
                 
-                workingData = allBookDataFromServer.filter(w => w.ch_id.trim().toLowerCase() === clickedWord.ch_id.trim().toLowerCase());
+                workingData = allBookDataFromServer.filter(w => w.ch_id && w.ch_id.trim().toLowerCase() === clickedWord.ch_id.trim().toLowerCase());
                 
                 document.getElementById('chapter-subtitle').innerText = clickedWord.section;
                 document.getElementById('chapter-title').innerText = clickedWord.chapter;
@@ -1092,6 +1165,7 @@
             if(currentCardScopeData.length === 0) return;
             
             const item = currentCardScopeData[cardIndex];
+            if(!item) return;
             
             document.getElementById('cv-location').innerText = `${item.section} - ${item.chapter}`;
             document.getElementById('cv-page').innerText = item.page;
