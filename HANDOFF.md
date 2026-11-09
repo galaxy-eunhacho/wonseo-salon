@@ -1,6 +1,6 @@
 # 📋 원서살롱 Voca Notes App — 세션 핸드오프 (Handoff) 문서
 
-- **최종 업데이트**: 2026-11-09 23:06
+- **최종 업데이트**: 2026-11-09 23:25
 - **프로젝트**: 원서살롱 프라이빗 어휘 노트 & 플래시카드 웹앱 (`WONSEO SALON VOCA NOTES`)
 - **라이브 서비스 URL**: https://wonseo-salon.netlify.app/
 - **GitHub 저장소**: https://github.com/galaxy-eunhacho/wonseo-salon (`main` 브랜치)
@@ -10,7 +10,33 @@
 
 ---
 
-## 1. 📌 최근 완료된 작업 요약 (2026-11-02)
+## 1. 📌 최근 완료된 작업 요약 (2026-11-09)
+
+### 📚 0) American Hagwon — BOOK III 어휘 데이터 병합 및 활성화 (총 118개 어휘)
+- **어휘 범위**: ID `1401` ~ `1518` (총 118개 행, 전체 누적 1,518개 어휘)
+- **챕터 구성 (Epigraph + 17개 챕터, Ch 15는 단어가 없어 제외)**:
+  - `Epigraph` (`b3q1`): 3개
+  - `Ch 1. Maslow` (`b3c1`): 12개
+  - `Ch 2. Plans` (`b3c2`): 10개
+  - `Ch 3. Election` (`b3c3`): 12개
+  - `Ch 4. Presents` (`b3c4`): 9개
+  - `Ch 5. Ginny` (`b3c5`): 7개
+  - `Ch 6. I'll Stand By You` (`b3c6`): 5개
+  - `Ch 7. Yokshim` (`b3c7`): 8개
+  - `Ch 8. Danbi` (`b3c8`): 8개
+  - `Ch 9. Wedlock` (`b3c9`): 7개
+  - `Ch 10. Debate` (`b3c10`): 7개
+  - `Ch 11. Fortress Teachers` (`b3c11`): 6개
+  - `Ch 12. Bonds` (`b3c12`): 3개
+  - `Ch 13. Austerity` (`b3c13`): 5개
+  - `Ch 14. Wives` (`b3c14`): 4개
+  - `Ch 16. Instructions for the Living` (`b3c16`): 4개
+  - `Ch 17. Sunday After` (`b3c17`): 4개
+  - `Ch 18. Independence` (`b3c18`): 4개
+- **DB 및 파일 반영**:
+  - `id` 및 `book_id` 컬럼을 자동 부여(`1401`~`1518`)하고 `section`을 `BOOK III`로 통일하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 병합 완료 (원본 임시 파일은 병합 후 정리).
+  - Supabase `voca_notes` 테이블에 일괄 적재 완료.
+  - `index.html` 및 동기화 파일의 `BOOK III` 목차 활성화.
 
 ### 🐛 1) Supabase 기본 쿼리 제한(1,000행) 초과 이슈 해결 (Book II Ch. 5~14 노출 정상화)
 - **현상 및 원인 분석**:
@@ -89,7 +115,7 @@ Voca Notes App/
 ├── WONSEO SALON_VocaNotesApp/
 │   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
 ├── AmericanHagwon.jpg                   # 도서 표지 이미지
-├── VN-american-hagwon.csv               # 북1 + 북2 통합 어휘 DB (1,400행, 단일 통합본)
+├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (1,518행, 단일 통합본)
 ├── VN-american-hagwon - members.csv     # 회원 목록 및 로그인 비밀번호 (9명)
 ├── netlify.toml                         # Netlify 배포 및 보안 헤더 설정
 ├── supabase_security_setup.sql          # Supabase RLS 보안 및 RPC 로그인 함수 SQL
