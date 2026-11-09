@@ -1,6 +1,6 @@
 # 📋 원서살롱 Voca Notes App — 세션 핸드오프 (Handoff) 문서
 
-- **최종 업데이트**: 2026-11-02 10:15
+- **최종 업데이트**: 2026-11-09 23:06
 - **프로젝트**: 원서살롱 프라이빗 어휘 노트 & 플래시카드 웹앱 (`WONSEO SALON VOCA NOTES`)
 - **라이브 서비스 URL**: https://wonseo-salon.netlify.app/
 - **GitHub 저장소**: https://github.com/galaxy-eunhacho/wonseo-salon (`main` 브랜치)
@@ -43,8 +43,7 @@
   - `Ch 14. Debtors` (`b2c14`): 52개
 - **DB 및 파일 반영**:
   - Supabase `voca_notes` 테이블에 일괄 적재 완료.
-  - 통합 CSV [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv)에 병합 (Book I 805행 + Book II 595행 = 총 1,400행).
-  - 원본 [VN-american-hagwon-Book II.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon-Book%20II.csv) 보관.
+  - 통합 CSV [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv)에 단일화 병합 (Book I 805행 + Book II 595행 = 총 1,400행). 중복 파일이었던 `VN-american-hagwon-Book II.csv`는 삭제하여 단일 파일로 통합 관리.
 
 ### 📄 3) 표(Table) 페이지 번호 100자리 줄 바꿈 방지
 - **개선 상세**: `.col-page` 셀 스타일을 `width: 80px; min-width: 78px; white-space: nowrap !important;`로 설정하여 `p. 107`, `p. 125`, `p. 230` 등 세 자리 페이지 번호가 모바일/PC 상관없이 절대 두 줄로 분리되지 않도록 처리.
@@ -90,8 +89,7 @@ Voca Notes App/
 ├── WONSEO SALON_VocaNotesApp/
 │   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
 ├── AmericanHagwon.jpg                   # 도서 표지 이미지
-├── VN-american-hagwon.csv               # 북1 + 북2 통합 어휘 DB (1,400행)
-├── VN-american-hagwon-Book II.csv       # 북2 원본 어휘 데이터 (595행)
+├── VN-american-hagwon.csv               # 북1 + 북2 통합 어휘 DB (1,400행, 단일 통합본)
 ├── VN-american-hagwon - members.csv     # 회원 목록 및 로그인 비밀번호 (9명)
 ├── netlify.toml                         # Netlify 배포 및 보안 헤더 설정
 ├── supabase_security_setup.sql          # Supabase RLS 보안 및 RPC 로그인 함수 SQL
