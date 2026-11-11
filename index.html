@@ -277,6 +277,29 @@
         .col-expr { width: 190px; font-weight: 800; color: #111; font-size: 16px; }
         .expr-cell { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
         .expr-text { flex: 1; word-break: keep-all; }
+        .expr-yt-link {
+            color: var(--point-green);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+        .expr-yt-link:hover { color: var(--point-terra); }
+        .expr-yt-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(211, 84, 0, 0.1);
+            color: var(--point-terra);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 100px;
+            text-decoration: none;
+            vertical-align: middle;
+        }
         .table-tts-btn {
             background: var(--point-green-light); border: none; color: var(--point-green);
             width: 28px; height: 28px; border-radius: 50%; display: inline-flex;
@@ -1094,6 +1117,21 @@
             }
         }
 
+        const MEDIA_LINKS = {
+            "i'll stand by you by the pretenders": "https://youtu.be/nobHZ3nOp38?si=Aqvi_iZ7y30GERRS"
+        };
+
+        function getMediaLink(expression) {
+            if (!expression) return null;
+            return MEDIA_LINKS[expression.trim().toLowerCase()] || null;
+        }
+
+        function formatExpressionHTML(expression) {
+            const url = getMediaLink(expression);
+            if (!url) return expression;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="expr-yt-link" onclick="event.stopPropagation();" title="YouTube에서 음악 듣기">${expression} <span class="expr-yt-badge">▶ YouTube</span></a>`;
+        }
+
         function renderContent() {
             const emptyState = document.getElementById('empty-state');
             const listMode = document.getElementById('list-mode');
@@ -1133,7 +1171,7 @@
                         <td class="col-page">${row.page}</td>
                         <td class="col-expr">
                             <div class="expr-cell">
-                                <span class="expr-text">${row.expression}</span>
+                                <span class="expr-text">${formatExpressionHTML(row.expression)}</span>
                                 <button class="table-tts-btn" onclick="playTableTTS(event, ${index})" title="발음 듣기" aria-label="Listen">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -1188,7 +1226,7 @@
             
             document.getElementById('cv-location').innerText = `${item.section} - ${item.chapter}`;
             document.getElementById('cv-page').innerText = item.page;
-            document.getElementById('cv-expr').innerText = item.expression;
+            document.getElementById('cv-expr').innerHTML = formatExpressionHTML(item.expression);
             document.getElementById('cv-mean').innerText = item.meaning;
             document.getElementById('cv-ctx').innerText = item.context;
             document.getElementById('card-counter').innerText = `${cardIndex + 1} / ${currentCardScopeData.length}`;
