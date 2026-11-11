@@ -112,7 +112,7 @@
 ```
 Voca Notes App/
 ├── index.html                           # 메인 웹앱 소스 (루트)
-├── WONSEO SALON_VocaNotesApp/
+ ├── WONSEO SALON_VocaNotesApp/
 │   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
 ├── AmericanHagwon.jpg                   # 도서 표지 이미지
 ├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (1,707행, 단일 통합본)
