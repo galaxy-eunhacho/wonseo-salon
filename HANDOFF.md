@@ -37,6 +37,7 @@
   - `id` 및 `book_id` 컬럼을 자동 부여(`1401`~`1707`)하고 `section`을 `BOOK III`로 통일하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 교체 병합 완료 (원본 임시 파일은 병합 후 정리).
   - Supabase `voca_notes` 테이블에 일괄 갱신(307행) 적재 완료.
   - `index.html` 및 동기화 파일의 `BOOK III` 목차 활성화.
+  - `Ch 6. I'll Stand By You`의 `"I'll Stand By You by the Pretenders"` 항목의 Context & Nuance 칸에 `▶ YouTube 에서 들으러가기` 배지를 배치하여 클릭 시 YouTube 음악 링크(`https://youtu.be/nobHZ3nOp38?si=Aqvi_iZ7y30GERRS`)가 새 탭에서 열리도록 연동.
 
 ### 🐛 1) Supabase 기본 쿼리 제한(1,000행) 초과 이슈 해결 (Book II Ch. 5~14 노출 정상화)
 - **현상 및 원인 분석**:
