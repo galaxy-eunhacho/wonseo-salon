@@ -29,6 +29,9 @@
             --point-green: #4A7C59; 
             --point-green-light: rgba(74, 124, 89, 0.1);
             --point-terra: #D35400; 
+            --point-us: #3B5998;
+            --point-us-bg: rgba(59, 89, 152, 0.055);
+            --point-us-border: rgba(59, 89, 152, 0.22);
             
             --radius-sm: 12px;
             --radius-lg: 24px;
@@ -313,6 +316,63 @@
         .col-mean { width: 140px; color: var(--point-terra); font-weight: 600; }
         .col-ctx { color: #555; line-height: 1.6; }
 
+        /* 미국판 추가 원문 (US Edition Exclusive) 스타일 및 주석 */
+        .us-edition-note {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--point-us);
+            background: var(--point-us-bg);
+            border: 1px solid var(--point-us-border);
+            padding: 8px 14px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+        .us-edition-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--point-us);
+            flex-shrink: 0;
+        }
+        tbody tr.us-edition-row {
+            background-color: rgba(59, 89, 152, 0.025);
+        }
+        tbody tr.us-edition-row:hover, tbody tr.us-edition-row:active {
+            background-color: rgba(59, 89, 152, 0.08);
+        }
+        tbody tr.us-edition-row .expr-text {
+            color: var(--point-us);
+        }
+        .us-mark {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--point-us);
+            margin-left: 2px;
+            opacity: 0.85;
+        }
+        .voca-card.us-edition-card {
+            border: 1.5px solid var(--point-us-border);
+        }
+        .voca-card.us-edition-card .card-expr {
+            color: var(--point-us);
+        }
+        .card-us-note {
+            display: none;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--point-us);
+            background: var(--point-us-bg);
+            border: 1px solid var(--point-us-border);
+            padding: 4px 12px;
+            border-radius: 100px;
+            margin: -6px auto 14px auto;
+            width: fit-content;
+        }
+
         #empty-state { display: none; text-align: center; padding: 60px 20px; color: var(--text-muted); }
         #empty-state h3 { margin: 15px 0 8px 0; font-size: 16px; font-weight: 700; color: #333; }
 
@@ -433,6 +493,12 @@
             <!-- 전/후 챕터 이동 링크 (항상 표 상단에 작고 깔끔하게 표시) -->
             <div id="chapter-nav-bar" class="chapter-nav-bar"></div>
 
+            <!-- 미국판 추가 원문 안내 주석 (해당 단어가 포함된 챕터/검색에서만 자동 표시) -->
+            <div id="us-edition-note" class="us-edition-note">
+                <span class="us-edition-dot"></span>
+                <span><strong>* 푸른색 표기 어휘</strong>는 미국판 eBook 원문에만 수록된 표현입니다. (한국 출판 원서 미수록)</span>
+            </div>
+
             <div id="loading-spinner">
                 <div class="spinner"></div>
             </div>
@@ -460,6 +526,7 @@
                         <div class="card-location" id="cv-location">BOOK I - Ch 1. Return</div>
                         <div class="card-page" id="cv-page">p. 4</div>
                         <div class="card-expr" id="cv-expr">paradox</div>
+                        <div class="card-us-note" id="cv-us-note">* 미국판 eBook 수록 원문 (한국 출판 원서 미수록)</div>
                         <button class="card-tts-btn" id="card-tts-btn" onclick="playCurrentCardTTS(event)" aria-label="Listen Pronunciation" title="발음 듣기">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -909,6 +976,8 @@
             document.getElementById('list-mode').style.display = 'none';
             document.getElementById('card-mode').style.display = 'none';
             document.getElementById('empty-state').style.display = 'none';
+            const usNoteInit = document.getElementById('us-edition-note');
+            if (usNoteInit) usNoteInit.style.display = 'none';
 
             // 목차 메타데이터에서 챕터 및 섹션 정보 미리 세팅 (로딩 중 또는 데이터 공백 시에도 제목 정상 표시)
             let secName = '';
@@ -1121,6 +1190,18 @@
             "i'll stand by you by the pretenders": "https://youtu.be/nobHZ3nOp38?si=Aqvi_iZ7y30GERRS"
         };
 
+        const US_EDITION_REGEX = /\(미국판\s*추가\s*원문\)\s*/g;
+
+        function isUsEditionRow(row) {
+            if (!row || !row.context) return false;
+            return /\(미국판\s*추가\s*원문\)/.test(row.context);
+        }
+
+        function cleanUsEditionContext(contextStr) {
+            if (!contextStr) return '';
+            return contextStr.replace(US_EDITION_REGEX, '').trim();
+        }
+
         function getMediaLink(expression) {
             if (!expression) return null;
             return MEDIA_LINKS[expression.trim().toLowerCase()] || null;
@@ -1128,9 +1209,10 @@
 
         function formatContextHTML(row) {
             if (!row) return '';
+            const cleanedCtx = cleanUsEditionContext(row.context);
             const url = getMediaLink(row.expression);
-            if (!url) return row.context;
-            return `${row.context} <a href="${url}" target="_blank" rel="noopener noreferrer" class="ctx-yt-badge" onclick="event.stopPropagation();" title="YouTube에서 음악 듣기">▶ YouTube 에서 들으러가기</a>`;
+            if (!url) return cleanedCtx;
+            return `${cleanedCtx} <a href="${url}" target="_blank" rel="noopener noreferrer" class="ctx-yt-badge" onclick="event.stopPropagation();" title="YouTube에서 음악 듣기">▶ YouTube 에서 들으러가기</a>`;
         }
 
         function renderContent() {
@@ -1138,6 +1220,7 @@
             const listMode = document.getElementById('list-mode');
             const cardMode = document.getElementById('card-mode');
             const loadingSpinner = document.getElementById('loading-spinner');
+            const usNoteEl = document.getElementById('us-edition-note');
 
             if (loadingSpinner.style.display === 'flex') return; 
             
@@ -1145,6 +1228,7 @@
                 emptyState.style.display = 'block';
                 listMode.style.display = 'none';
                 cardMode.style.display = 'none';
+                if (usNoteEl) usNoteEl.style.display = 'none';
                 return;
             }
             
@@ -1154,6 +1238,11 @@
                 listMode.style.display = 'block';
                 cardMode.style.display = 'none';
                 
+                const hasUsEdition = workingData.some(r => isUsEditionRow(r));
+                if (usNoteEl) {
+                    usNoteEl.style.display = hasUsEdition ? 'flex' : 'none';
+                }
+
                 const thead = document.getElementById('voca-table-head');
                 thead.innerHTML = `
                     <tr>
@@ -1166,13 +1255,15 @@
                 `;
 
                 const tbody = document.getElementById('voca-table-body');
-                tbody.innerHTML = workingData.map((row, index) => `
-                    <tr onclick="selectCardFromList(${index})">
+                tbody.innerHTML = workingData.map((row, index) => {
+                    const isUs = isUsEditionRow(row);
+                    return `
+                    <tr class="${isUs ? 'us-edition-row' : ''}" onclick="selectCardFromList(${index})">
                         ${globalSearchMode ? `<td class="col-loc">${row.chapter}</td>` : ''}
                         <td class="col-page">${row.page}</td>
                         <td class="col-expr">
                             <div class="expr-cell">
-                                <span class="expr-text">${row.expression}</span>
+                                <span class="expr-text">${row.expression}${isUs ? '<span class="us-mark" title="미국판 eBook 수록 원문">*</span>' : ''}</span>
                                 <button class="table-tts-btn" onclick="playTableTTS(event, ${index})" title="발음 듣기" aria-label="Listen">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                                         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -1185,9 +1276,10 @@
                         <td class="col-mean">${row.meaning}</td>
                         <td class="col-ctx">${formatContextHTML(row)}</td>
                     </tr>
-                `).join('');
+                `}).join('');
             } 
             else if (currentViewMode === 'card') {
+                if (usNoteEl) usNoteEl.style.display = 'none';
                 listMode.style.display = 'none';
                 cardMode.style.display = 'block';
                 updateCardUI();
@@ -1225,9 +1317,15 @@
             const item = currentCardScopeData[cardIndex];
             if(!item) return;
             
+            const isUs = isUsEditionRow(item);
+            const cardEl = document.getElementById('voca-card-el');
+            const cardUsNoteEl = document.getElementById('cv-us-note');
+            if (cardEl) cardEl.classList.toggle('us-edition-card', isUs);
+            if (cardUsNoteEl) cardUsNoteEl.style.display = isUs ? 'block' : 'none';
+
             document.getElementById('cv-location').innerText = `${item.section} - ${item.chapter}`;
             document.getElementById('cv-page').innerText = item.page;
-            document.getElementById('cv-expr').innerText = item.expression;
+            document.getElementById('cv-expr').innerHTML = `${item.expression}${isUs ? '<span class="us-mark">*</span>' : ''}`;
             document.getElementById('cv-mean').innerText = item.meaning;
             document.getElementById('cv-ctx').innerHTML = formatContextHTML(item);
             document.getElementById('card-counter').innerText = `${cardIndex + 1} / ${currentCardScopeData.length}`;
