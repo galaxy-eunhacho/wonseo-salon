@@ -1,6 +1,6 @@
 # 📋 원서살롱 Voca Notes App — 세션 핸드오프 (Handoff) 문서
 
-- **최종 업데이트**: 2026-11-20 22:39
+- **최종 업데이트**: 2026-11-22 17:27
 - **프로젝트**: 원서살롱 프라이빗 어휘 노트 & 플래시카드 웹앱 (`WONSEO SALON VOCA NOTES`)
 - **라이브 서비스 URL**: https://wonseo-salon.netlify.app/
 - **GitHub 저장소**: https://github.com/galaxy-eunhacho/wonseo-salon (`main` 브랜치)
@@ -10,10 +10,10 @@
 
 ---
 
-## 1. 📌 최근 완료된 작업 요약 (2026-11-20)
+## 1. 📌 최근 완료된 작업 요약 (2026-11-22)
 
-### 📚 0) American Hagwon — BOOK III 어휘 데이터 업데이트 (Ch 8~11 보강, 미국판 추가 원문 10개 제외 후 총 390개)
-- **어휘 범위**: ID `1401` ~ `1790` (총 390개 행, 전체 누적 1,790개 어휘)
+### 📚 0) American Hagwon — BOOK III 어휘 데이터 확장 업데이트 (Ch 12까지 보강, 미국판 추가 원문 제외 후 총 418개)
+- **어휘 범위**: ID `1401` ~ `1818` (총 418개 행, 전체 누적 1,818개 어휘)
 - **챕터 구성 (Epigraph + 17개 챕터, Ch 15는 단어가 없어 제외)**:
   - `Epigraph` (`b3q1`): 6개
   - `Ch 1. Maslow` (`b3c1`): 55개
@@ -27,15 +27,15 @@
   - `Ch 9. Wedlock` (`b3c9`): 19개
   - `Ch 10. Debate` (`b3c10`): 27개
   - `Ch 11. Fortress Teachers` (`b3c11`): 27개
-  - `Ch 12. Bonds` (`b3c12`): 3개
+  - `Ch 12. Bonds` (`b3c12`): 31개
   - `Ch 13. Austerity` (`b3c13`): 5개
   - `Ch 14. Wives` (`b3c14`): 4개
   - `Ch 16. Instructions for the Living` (`b3c16`): 4개
   - `Ch 17. Sunday After` (`b3c17`): 4개
   - `Ch 18. Independence` (`b3c18`): 4개
 - **DB 및 파일 반영**:
-  - 독자 혼선을 방지하기 위해 `(미국판 추가 원문)` 어휘 10개를 전면 삭제하고 ID를 `1401`~`1790`으로 연속 재정렬하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 반영 완료.
-  - Supabase `voca_notes` 테이블에도 미국판 어휘를 제외한 390행으로 일괄 갱신 완료.
+  - 독자 혼선을 방지하기 위해 `(미국판 추가 원문)` 어휘를 제외하고 ID를 `1401`~`1818`으로 연속 부여하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 병합 완료 (원본 임시 파일은 병합 후 정리).
+  - Supabase `voca_notes` 테이블에도 418행으로 일괄 갱신 완료.
   - `Ch 6. I'll Stand By You`의 `"I'll Stand By You by the Pretenders"` 항목의 Context & Nuance 칸에 `▶ YouTube 에서 들으러가기` 배지를 배치하여 클릭 시 YouTube 음악 링크(`https://youtu.be/nobHZ3nOp38?si=Aqvi_iZ7y30GERRS`)가 새 탭에서 열리도록 연동.
 
 ### 🐛 1) Supabase 기본 쿼리 제한(1,000행) 초과 이슈 해결 (Book II Ch. 5~14 노출 정상화)
@@ -115,7 +115,7 @@ Voca Notes App/
  ├── WONSEO SALON_VocaNotesApp/
 │   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
 ├── AmericanHagwon.jpg                   # 도서 표지 이미지
-├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (1,790행, 단일 통합본)
+├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (1,818행, 단일 통합본)
 ├── VN-american-hagwon - members.csv     # 회원 목록 및 로그인 비밀번호 (9명)
 ├── netlify.toml                         # Netlify 배포 및 보안 헤더 설정
 ├── supabase_security_setup.sql          # Supabase RLS 보안 및 RPC 로그인 함수 SQL
