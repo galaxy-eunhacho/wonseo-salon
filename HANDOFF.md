@@ -12,8 +12,8 @@
 
 ## 1. 📌 최근 완료된 작업 요약 (2026-11-26)
 
-### 📚 0) American Hagwon — BOOK III 전 챕터(Ch 1~18) 어휘 데이터 최종 완성 (총 625개 어휘)
-- **어휘 범위**: ID `1401` ~ `2025` (BOOK III 총 625개 행, 전체 누적 **2,025개 어휘**)
+### 📚 0) American Hagwon — BOOK III 전 챕터(Ch 1~18) 어휘 데이터 최종 완성 (총 617개 어휘)
+- **어휘 범위**: ID `1401` ~ `2017` (BOOK III 총 617개 행, 전체 누적 **2,017개 어휘**)
 - **챕터 구성 (Epigraph + 18개 챕터 전체 완성)**:
   - `Epigraph` (`b3q1`): 6개
   - `Ch 1. Maslow` (`b3c1`): 55개
@@ -27,18 +27,18 @@
   - `Ch 9. Wedlock` (`b3c9`): 19개
   - `Ch 10. Debate` (`b3c10`): 27개
   - `Ch 11. Fortress Teachers` (`b3c11`): 27개
-  - `Ch 12. Bonds` (`b3c12`): 32개
-  - `Ch 13. Austerity` (`b3c13`): 39개
+  - `Ch 12. Bonds` (`b3c12`): 31개
+  - `Ch 13. Austerity` (`b3c13`): 36개
   - `Ch 14. Wives` (`b3c14`): 41개
-  - `Ch 15. Fruit` (`b3c15`): 42개 (목차 신규 추가 및 활성화)
+  - `Ch 15. Fruit` (`b3c15`): 41개 (목차 신규 추가 및 활성화)
   - `Ch 16. Instructions for the Living` (`b3c16`): 26개
-  - `Ch 17. Sunday After` (`b3c17`): 34개
-  - `Ch 18. Independence` (`b3c18`): 45개
+  - `Ch 17. Sunday After` (`b3c17`): 32개
+  - `Ch 18. Independence` (`b3c18`): 44개
 - **DB 및 파일 반영**:
-  - `American Hagwon - Book III. Ch 13-18.csv`의 227개 어휘를 ID `1799`~`2025`로 연속 부여하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 병합 완료 (원본 임시 파일은 병합 후 정리).
-  - Supabase `voca_notes` 테이블에도 BOOK III 625행(전체 2,025행) 일괄 반영 완료.
+  - `American Hagwon - Book III. Ch 13-18.csv` 병합 및 동일 의미 중복 단어 8개(`dismay`, `swivel`, `canny`, `peer into`, `flushed`, `close on`, `plaintive`, `tremendous` 2차 등장분) 제거 후 ID `1401`~`2017`로 연속 재정렬하여 [VN-american-hagwon.csv](file:///c:/Users/USER/Documents/%EC%9B%90%EC%84%9C%EC%82%B4%EB%A1%B1/Voca%20Notes%20App/VN-american-hagwon.csv) 단일 파일에 반영 완료.
+  - Supabase `voca_notes` 테이블에도 BOOK III 617행(전체 2,017행) 일괄 반영 완료.
   - `index.html` 및 동기화 파일의 `BOOK III` 목차에 `Ch 15. Fruit`(`b3c15`)를 추가하여 총 `18 Chapters` 배지가 표시되도록 완성.
-  - `Ch 6. I'll Stand By You`의 `"I'll Stand By You by the Pretenders"` 항목의 Context & Nuance 칸에 `▶ YouTube 에서 들으러가기` 배지를 배치하여 클릭 시 YouTube 음악 링크(`https://youtu.be/nobHZ3nOp38?si=Aqvi_iZ7y30GERRS`)가 새 탭에서 열리도록 연동.
+  - `Ch 6. I'll Stand By You`의 `"I'll Stand By You by the Pretenders"` 및 `Ch 18. Independence`의 `"Just Like Heaven"` 항목의 Context & Nuance 칸에 `▶ YouTube 에서 들으러가기` 배지를 배치하여 클릭 시 YouTube 음악 링크가 새 탭에서 열리도록 연동.
 
 ### 🐛 1) Supabase 기본 쿼리 제한(1,000행) 초과 이슈 해결 (Book II Ch. 5~14 노출 정상화)
 - **현상 및 원인 분석**:
@@ -119,7 +119,7 @@ Voca Notes App/
  ├── WONSEO SALON_VocaNotesApp/
 │   └── index.html                       # 메인 웹앱 소스 (동기화 복사본)
 ├── AmericanHagwon.jpg                   # 도서 표지 이미지
-├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (2,025행, 단일 통합본)
+├── VN-american-hagwon.csv               # 북1 + 북2 + 북3 통합 어휘 DB (2,017행, 단일 통합본)
 ├── VN-american-hagwon - members.csv     # 회원 목록 및 로그인 비밀번호 (9명)
 ├── netlify.toml                         # Netlify 배포 및 보안 헤더 설정
 ├── supabase_security_setup.sql          # Supabase RLS 보안 및 RPC 로그인 함수 SQL
