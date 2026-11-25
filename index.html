@@ -413,7 +413,7 @@
 
         <!-- 3. 단어장 & 검색결과 통합 화면 -->
         <div id="chapter-view" class="view-container">
-            <div class="chapter-header reveal">
+            <div class="chapter-header reveal visible">
                 <div>
                     <div id="chapter-subtitle" class="chapter-subtitle"></div>
                     <h2 id="chapter-title" class="chapter-title">Chapter Title</h2>
@@ -960,6 +960,7 @@
             saveState('chapter', bookId, chapterId);
             switchMode(currentViewMode, true);
             renderChapterNav(); 
+            setTimeout(applyReveal, 20);
         }
 
         // 챕터 간 이동 및 화면 최상단 스크롤 완벽 복구 함수
@@ -1032,6 +1033,9 @@
             const chapterHeaderEl = document.querySelector('.chapter-header');
             if (chapterHeaderEl) {
                 chapterHeaderEl.classList.toggle('hide-in-card', mode === 'card');
+                if (mode === 'list') {
+                    chapterHeaderEl.classList.add('visible');
+                }
             }
 
             if (mode === 'card') {
@@ -1040,9 +1044,19 @@
                     saveState('chapter', currentBook.id, currentItem.ch_id);
                 }
             } else {
-                const saved = JSON.parse(localStorage.getItem('vocaState'));
-                if (saved && saved.chapterId) {
-                    saveState('chapter', currentBook.id, saved.chapterId);
+                const currentItem = currentCardScopeData[cardIndex];
+                if (!globalSearchMode && currentItem && currentItem.ch_id) {
+                    currentChapterId = currentItem.ch_id;
+                    workingData = allBookDataFromServer.filter(w => w.ch_id && w.ch_id.trim().toLowerCase() === currentChapterId.trim().toLowerCase());
+                    document.getElementById('chapter-subtitle').innerText = currentItem.section || '';
+                    document.getElementById('chapter-title').innerText = currentItem.chapter || '';
+                    saveState('chapter', currentBook.id, currentChapterId);
+                    renderChapterNav();
+                } else {
+                    const saved = JSON.parse(localStorage.getItem('vocaState'));
+                    if (saved && saved.chapterId) {
+                        saveState('chapter', currentBook.id, saved.chapterId);
+                    }
                 }
             }
 
@@ -1130,6 +1144,7 @@
 
         function formatContextHTML(row) {
             if (!row) return '';
+            if (row.context && row.context.includes('ctx-yt-badge')) return row.context;
             const url = getMediaLink(row.expression);
             if (!url) return row.context;
             return `${row.context} <a href="${url}" target="_blank" rel="noopener noreferrer" class="ctx-yt-badge" onclick="event.stopPropagation();" title="YouTube에서 음악 듣기">▶ YouTube 에서 들으러가기</a>`;
